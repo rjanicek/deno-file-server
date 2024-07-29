@@ -13,3 +13,7 @@ A simple file server based on the standard Deno file server but with some extra 
     * download http/file_server.ts
     * merge with local scripts/file_server.ts
     * update version in deno.json
+
+## Resources
+
+favicon -> https://www.favicon.cc/?action=icon&file_id=843526

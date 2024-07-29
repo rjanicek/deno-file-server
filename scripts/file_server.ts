@@ -55,6 +55,7 @@ import { parseArgs } from "@std/cli/parse-args";
 import denoConfig from "../deno.json" with { type: "json" };
 import { format as formatBytes } from "@std/fmt/bytes";
 import { getNetworkAddress } from "@std/net/get-network-address";
+import { handleFaviconResponse } from "./favicon-response.ts";
 
 interface EntryInfo {
   mode: string;
@@ -643,6 +644,12 @@ export async function serveDir(
   try {
     response = await createServeDirResponse(req, opts);
   } catch (error) {
+
+    if (error instanceof Deno.errors.NotFound) {
+      const faviconResponse = handleFaviconResponse(req);
+      if (faviconResponse !== undefined) return faviconResponse;
+    }
+
     if (!opts.quiet) logError(error as Error);
     response = serveFallback(error);
   }
@@ -766,7 +773,7 @@ async function createServeDirResponse(
 }
 
 function logError(error: Error) {
-  console.error(`%c${error.message}`, "color: red");
+  console.error(`%c${error.stack}`, "color: red");
 }
 
 function main() {
