@@ -5,6 +5,15 @@ A simple file server based on the standard Deno file server but with some extra 
 
 ![image](https://github.com/user-attachments/assets/81ec37f9-4aea-4299-9e6e-87e11bc38695)
 
+New feature options in `deno.json`
+```
+{
+  "status-page-url": "/status",
+  "status-refresh-seconds": 15,
+  "apply-download-attribute-to-file-links": true,
+  "default-favicon-base64": "AAABAA..."
+}
+```
 
 ## Tasks
 
