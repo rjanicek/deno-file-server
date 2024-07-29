@@ -2,6 +2,7 @@
   "version": "2024.07.26",
   "status-page-url": "/status",
   "status-refresh-seconds": 15,
+  "apply-download-attribute-to-file-links": true,
   "imports": {
     "@std/cli": "jsr:@std/cli@1.0.1",
     "@std/encoding": "jsr:@std/encoding@1.0.1",

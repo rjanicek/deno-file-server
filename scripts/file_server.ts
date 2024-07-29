@@ -536,7 +536,7 @@ function dirViewerTemplate(dirname: string, entries: EntryInfo[]): string {
                       ${entry.size}
                     </td>
                     <td>
-                      <a href="${entry.url}">${entry.name}</a>
+                      <a href="${entry.url}" ${denoConfig["apply-download-attribute-to-file-links"]?`download="${entry.name}"`:''}>${entry.name}</a>
                     </td>
                   </tr>
                 `,
