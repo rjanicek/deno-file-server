@@ -1,6 +1,6 @@
 import denoConfig from '../deno.json' with { type: 'json' };
 import { basename } from '@std/path/basename';
-import { state, updatePercent } from './progress-stream.ts';
+import { state, calculateState } from './progress-stream.ts';
 import { STATUS_CODE } from '@std/http/status';
 import { STATUS_TEXT } from '@std/http/status';
 import { format as formatBytes } from '@std/fmt/bytes';
@@ -10,7 +10,7 @@ export function handleStatusResponse(request: Request) {
 
     if (url.pathname !== denoConfig['status-page-url']) return;
 
-    updatePercent();
+    calculateState();
 
     const stateInfo = state.map((x: any) => {
         if ('created' in x) x.status = 'streaming';
@@ -51,7 +51,7 @@ export function handleStatusResponse(request: Request) {
                         <td>${formatBytes(x.totalBytes)}</td>
                         <td>
                             <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar overflow-visible" style="width: ${x.percent}%">${x.status} - ${x.percent}%</div>
+                                <div class="progress-bar overflow-visible" style="width: ${x.percent}%">${x.status} - ${x.bytesPerSecond !== 0 ? formatBytes(x.bytesPerSecond) + '/s' : ''} - ${x.percent}%</div>
                             </div>
                         </td>
                     </tr>

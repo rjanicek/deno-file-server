@@ -1,4 +1,7 @@
+import denoConfig from '../deno.json' with { type: 'json' };
+
 export const state: any = [];
+
 
 export class ProgressTransformStream extends TransformStream<Uint8Array, Uint8Array> {
     public streamState: any = {};
@@ -6,17 +9,29 @@ export class ProgressTransformStream extends TransformStream<Uint8Array, Uint8Ar
     constructor(totalBytes: number, description?: string) {
         super({
             transform: (chunk, controller) => {
-                this.streamState.totalBytesStreamed += chunk.length;
+                this.streamState.totalBytesStreamed += chunk.byteLength;
+                this.streamState.rateBytesStreamed += chunk.byteLength;
+
+                const now = Date.now();
+                if (this.streamState.rateBeginTimestamp + denoConfig['status-rate-interval-milliseconds'] < now) {
+                    const msDelta = now - this.streamState.rateBeginTimestamp;
+                    this.streamState.bytesPerSecond = this.streamState.rateBytesStreamed / (msDelta / 1000);
+                    this.streamState.rateBytesStreamed = 0;
+                    this.streamState.rateBeginTimestamp = now;
+                }
+                
                 controller.enqueue(chunk);
             },
 
             cancel: (reason) => {
                 this.streamState.canceled = Date.now();
                 this.streamState.canceledReason = reason;
+                this.streamState.bytesPerSecond = 0;
             },
 
             flush: (controller) => {
                 this.streamState.flushed = Date.now();
+                this.streamState.bytesPerSecond = 0;
             },
         });
  
@@ -24,7 +39,12 @@ export class ProgressTransformStream extends TransformStream<Uint8Array, Uint8Ar
             created: Date.now(),
             description, 
             totalBytes, 
-            totalBytesStreamed: 0 
+            totalBytesStreamed: 0,
+            
+            rateBeginTimestamp: Date.now(),
+            rateBytesStreamed: 0,
+            bytesPerSecond: 0
+            
         };
         state.push(this.streamState);
     }
@@ -39,7 +59,7 @@ export class HttpRequestProgressTransformStream extends ProgressTransformStream 
     }
 }
 
-export function updatePercent() {
+export function calculateState() {
     for (const x of state) {
         if (typeof x.totalBytes === 'number') {
             const percent = (x.totalBytesStreamed / x.totalBytes) * 100;
@@ -53,7 +73,7 @@ export function continuouslyLogProgressToConsole(checkInterval = 5000) {
     setInterval(() => {
         const stateJson = JSON.stringify(state);
         if (lastStateJson === stateJson) return;
-        updatePercent();
+        calculateState();
         lastStateJson = stateJson;
         console.log(state);
 

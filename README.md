@@ -10,6 +10,7 @@ New feature options in `deno.json`
 {
   "status-page-url": "/status",
   "status-refresh-seconds": 15,
+  "status-rate-interval-milliseconds": 1000,
   "apply-download-attribute-to-file-links": true,
   "default-favicon-base64": "AAABAA..."
 }
