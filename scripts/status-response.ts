@@ -37,7 +37,7 @@ export function handleStatusResponse(request: Request) {
         <table class="table">
             <thead>
                 <tr>
-                    <th>Created</th>
+                    <th>Started</th>
                     <th>File</th>
                     <th>Size</th>
                     <th>Status</th>
