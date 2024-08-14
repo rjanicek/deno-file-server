@@ -1,7 +1,14 @@
 import denoConfig from '../deno.json' with { type: 'json' };
 
 export const state: any = [];
-
+export const total = {
+    bytesStreamed: 0,
+    bytes: 0,
+    bytesStreamedPercent: 0,
+    activeBytesStreamed: 0,
+    activeBytes: 0,
+    activeBytesStreamedPercent: 0,
+};
 
 export class ProgressTransformStream extends TransformStream<Uint8Array, Uint8Array> {
     public streamState: any = {};
@@ -60,12 +67,23 @@ export class HttpRequestProgressTransformStream extends ProgressTransformStream 
 }
 
 export function calculateState() {
+    total.bytesStreamed = 0;
+    total.bytes = 0;
+    total.activeBytesStreamed = 0;
+    total.activeBytes = 0;
+
     for (const x of state) {
-        if (typeof x.totalBytes === 'number') {
-            const percent = (x.totalBytesStreamed / x.totalBytes) * 100;
-            x.percent = (percent).toFixed(2);
-        }
+        if (typeof x.totalBytes !== 'number') continue;
+        x.percent = (x.totalBytesStreamed / x.totalBytes) * 100;
+        total.bytesStreamed += x.totalBytesStreamed;
+        total.bytes += x.totalBytes;
+        if ('canceled' in x || 'flushed' in x) continue;
+        total.activeBytesStreamed += x.totalBytesStreamed;
+        total.activeBytes += x.totalBytes;
     }
+
+    total.bytesStreamedPercent = total.bytes !== 0 ? (total.bytesStreamed / total.bytes) * 100 : 0;
+    total.activeBytesStreamedPercent = total.activeBytes !== 0 ? (total.activeBytesStreamed / total.activeBytes) * 100 : 0;    
 }
 
 export function continuouslyLogProgressToConsole(checkInterval = 5000) {

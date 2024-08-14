@@ -1,6 +1,6 @@
 import denoConfig from '../deno.json' with { type: 'json' };
 import { basename } from '@std/path/basename';
-import { state, calculateState } from './progress-stream.ts';
+import { state, calculateState, total } from './progress-stream.ts';
 import { STATUS_CODE } from '@std/http/status';
 import { STATUS_TEXT } from '@std/http/status';
 import { format as formatBytes } from '@std/fmt/bytes';
@@ -19,6 +19,12 @@ export function handleStatusResponse(request: Request) {
         return x;
     }).reverse();
 
+    const totalPercentText = (()=>{
+        if (total.activeBytesStreamedPercent !== 0) return `${total.activeBytesStreamedPercent.toFixed(1)}% `;
+        if (total.bytesStreamedPercent !== 0) return `${total.bytesStreamedPercent.toFixed(1)}% `;
+        return ``;
+    })();
+
     const html = `
 
 <!doctype html>
@@ -27,7 +33,7 @@ export function handleStatusResponse(request: Request) {
     <meta charset="utf-8">
     <meta http-equiv="refresh" content="${denoConfig["status-refresh-seconds"]}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Status - Deno File Server</title>
+    <title>${totalPercentText.length === 0 ? 'Status' : totalPercentText} - Deno File Server</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   </head>
   <body>
@@ -51,7 +57,7 @@ export function handleStatusResponse(request: Request) {
                         <td>${formatBytes(x.totalBytes)}</td>
                         <td>
                             <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar overflow-visible" style="width: ${x.percent}%">${x.status} - ${x.bytesPerSecond !== 0 ? formatBytes(x.bytesPerSecond) + '/s' : ''} - ${x.percent}%</div>
+                                <div class="progress-bar overflow-visible" style="width: ${x.percent}%">${x.status} - ${x.bytesPerSecond !== 0 ? formatBytes(x.bytesPerSecond) + '/s' : ''} - ${x.percent.toFixed(1)}%</div>
                             </div>
                         </td>
                     </tr>
