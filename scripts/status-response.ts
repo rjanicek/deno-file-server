@@ -25,6 +25,12 @@ export function handleStatusResponse(request: Request) {
         return ``;
     })();
 
+    const getProgressBarClassBasedOnState = (x: any) => {
+        if ('flushed' in x) return 'bg-success';
+        if ('canceled' in x) return 'bg-danger';
+        return '';
+    };
+
     const html = `
 
 <!doctype html>
@@ -56,8 +62,10 @@ export function handleStatusResponse(request: Request) {
                         <td>${basename(x.filePath)}</td>
                         <td>${formatBytes(x.totalBytes)}</td>
                         <td>
-                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar overflow-visible" style="width: ${x.percent}%">${x.status} - ${x.bytesPerSecond !== 0 ? formatBytes(x.bytesPerSecond) + '/s' : ''} - ${x.percent.toFixed(1)}%</div>
+                            <div class="progress" role="progressbar">
+                                <div class="progress-bar overflow-visible ${getProgressBarClassBasedOnState(x)}" 
+                                    style="width: ${x.percent}%">${x.status} - ${x.bytesPerSecond !== 0 ? formatBytes(x.bytesPerSecond) + '/s' : ''} - ${x.percent.toFixed(1)}%
+                                </div>
                             </div>
                         </td>
                     </tr>
