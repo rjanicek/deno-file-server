@@ -27,6 +27,7 @@ New feature options in `deno.json`
 * if there is a newer release
     * download http/file_server.ts
     * merge with local scripts/file_server.ts
+    * update dependencies in deno.json by finding latest versions on https://jsr.io/
     * update version in deno.json
 
 ## Resources
