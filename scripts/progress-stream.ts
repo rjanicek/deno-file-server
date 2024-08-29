@@ -75,9 +75,10 @@ export function calculateState() {
     for (const x of state) {
         if (typeof x.totalBytes !== 'number') continue;
         x.percent = (x.totalBytesStreamed / x.totalBytes) * 100;
+        if ('canceled' in x) continue;  // don't add canceled streams to totals
         total.bytesStreamed += x.totalBytesStreamed;
         total.bytes += x.totalBytes;
-        if ('canceled' in x || 'flushed' in x) continue;
+        if ('flushed' in x) continue;
         total.activeBytesStreamed += x.totalBytesStreamed;
         total.activeBytes += x.totalBytes;
     }
