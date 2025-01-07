@@ -32,6 +32,7 @@
  * @module
  */
 
+// Keep Boop
 import { HttpRequestProgressTransformStream } from "./progress-stream.ts";
 import { handleStatusResponse } from "./status-response.ts"; './status-response.ts';
 import { handleFaviconResponse } from "./favicon-response.ts";
@@ -44,19 +45,19 @@ import { relative } from "@std/path/relative";
 import { resolve } from "@std/path/resolve";
 import { SEPARATOR_PATTERN } from "@std/path/constants";
 import { contentType } from "@std/media-types/content-type";
-import { eTag, ifNoneMatch } from "@std/http/etag";
+import { eTag, ifNoneMatch } from "@std/http/etag"; // Keep Boop
 import {
   isRedirectStatus,
   STATUS_CODE,
   STATUS_TEXT,
   type StatusCode,
-} from "@std/http/status";
+} from "@std/http/status"; // Keep Boop
 import { ByteSliceStream } from "@std/streams/byte-slice-stream";
 import { parseArgs } from "@std/cli/parse-args";
 import denoConfig from "../deno.json" with { type: "json" };
 import { format as formatBytes } from "@std/fmt/bytes";
 import { getNetworkAddress } from "@std/net/get-network-address";
-import { HEADER } from "@std/http/header";
+import { HEADER } from "@std/http/header"; // Keep Boop
 
 interface EntryInfo {
   mode: string;
@@ -266,7 +267,7 @@ export async function serveFile(
 
       const file = await Deno.open(filePath);
       const status = STATUS_CODE.OK;
-      return new Response(file.readable.pipeThrough(new HttpRequestProgressTransformStream(filePath, fileSize, req)), {
+      return new Response(file.readable.pipeThrough(new HttpRequestProgressTransformStream(filePath, fileSize, req)), { // Keep Boop
         status,
         statusText: STATUS_TEXT[status],
         headers,
@@ -303,6 +304,7 @@ export async function serveFile(
     const file = await Deno.open(filePath);
     await file.seek(start, Deno.SeekMode.Start);
     const sliced = file.readable
+    // Keep Boop
       .pipeThrough(new ByteSliceStream(0, contentLength - 1))
       .pipeThrough(new HttpRequestProgressTransformStream(filePath, contentLength, req));
     const status = STATUS_CODE.PartialContent;
@@ -318,7 +320,7 @@ export async function serveFile(
 
   const file = await Deno.open(filePath);
   const status = STATUS_CODE.OK;
-  return new Response(file.readable.pipeThrough(new HttpRequestProgressTransformStream(filePath, fileSize, req)), {
+  return new Response(file.readable.pipeThrough(new HttpRequestProgressTransformStream(filePath, fileSize, req)), { // Keep Boop
     status,
     statusText: STATUS_TEXT[status],
     headers,
@@ -541,6 +543,7 @@ function dirViewerTemplate(dirname: string, entries: EntryInfo[]): string {
                       ${entry.size}
                     </td>
                     <td>
+		      <!-- Keep Boop -->
                       <a href="${entry.url}" ${!entry.name.endsWith('/') && denoConfig["apply-download-attribute-to-file-links"] ? `download="${entry.name}"` : ''}>${entry.name}</a>
                     </td>
                   </tr>
@@ -654,6 +657,7 @@ export async function serveDir(
     response = await createServeDirResponse(req, opts);
   } catch (error) {
 
+    // Keep Boop
     if (error instanceof Deno.errors.NotFound) {
       const faviconResponse = handleFaviconResponse(req);
       if (faviconResponse !== undefined) return faviconResponse;
@@ -692,6 +696,7 @@ async function createServeDirResponse(
   req: Request,
   opts: ServeDirOptions,
 ) {
+  // Keep Boop
   const statusResponse = handleStatusResponse(req);
   if (statusResponse !== undefined) return statusResponse;
 
@@ -782,7 +787,7 @@ async function createServeDirResponse(
 }
 
 function logError(error: Error) {
-  console.error(`%c${error.stack}`, "color: red");
+  console.error(`%c${error.stack}`, "color: red"); // Keep Boop
 }
 
 function main() {
@@ -839,6 +844,7 @@ function main() {
   const wild = serverArgs._ as string[];
   const target = resolve(wild[0] ?? "");
 
+  // Keep Boop
   const handler = (req: Request, info: Deno.ServeHandlerInfo): Promise<Response> => {
     (req as any).info = info;
     
